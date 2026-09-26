@@ -1,0 +1,690 @@
+{
+  "branches": [
+    {
+      "id": "downtown",
+      "name": "فرع وسط البلد",
+      "englishName": "Downtown Branch",
+      "address": "شارع التحرير، بجوار السينما",
+      "isActive": true
+    },
+    {
+      "id": "new-city",
+      "name": "فرع المدينة الجديدة",
+      "englishName": "New City Branch",
+      "address": "الممشى الرئيسي، بوابة 2",
+      "isActive": true
+    }
+  ],
+  "categories": [
+    {
+      "id": "بيف-برجر",
+      "label": "بيف برجر",
+      "englishName": "Beef Burgers",
+      "sortOrder": 1,
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ]
+    },
+    {
+      "id": "تشيكن-برجر",
+      "label": "تشيكن برجر",
+      "englishName": "Checkin Burger",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "sortOrder": 2
+    },
+    {
+      "id": "وجبه-اطفال",
+      "label": "وجبه اطفال",
+      "englishName": "Kids Meals",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "sortOrder": 3
+    },
+    {
+      "id": "صوصات",
+      "label": "اضافات",
+      "englishName": "Additions",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "sortOrder": 4
+    },
+    {
+      "id": "صوصات-2",
+      "label": "صوصات",
+      "englishName": "Sauces",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "sortOrder": 5
+    },
+    {
+      "id": "مشروبات",
+      "label": "مشروبات",
+      "englishName": "Drinks",
+      "branchIds": [
+        "new-city",
+        "downtown"
+      ],
+      "sortOrder": 6
+    }
+  ],
+  "products": [
+    {
+      "id": 1790340057101,
+      "name": "Amrican cheese burger",
+      "nameAr": "امريكان اتشيز برجر",
+      "description": "بيف برجر مع امريكان اتشيز",
+      "category": "بيف-برجر",
+      "price": 115,
+      "largePrice": 160,
+      "sizes": [
+        115,
+        160
+      ],
+      "badge": "",
+      "image": "/uploads/1790340057081-old-school-webp.webp",
+      "isAvailable": true,
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ]
+    },
+    {
+      "id": 1790348904508,
+      "name": "Mavia",
+      "nameAr": "مافيا",
+      "description": "بيف برجر مع صوص اتشيز وروزبيف مدخن",
+      "category": "بيف-برجر",
+      "price": 130,
+      "largePrice": 175,
+      "sizes": [
+        130,
+        175
+      ],
+      "badge": "BEST SELLER",
+      "image": "/uploads/1790350756203-bacon-burger-webp.webp",
+      "isAvailable": true,
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ]
+    },
+    {
+      "id": 1790350657406,
+      "name": "Nawwi",
+      "nameAr": "نووي",
+      "description": "بيف برحر مع امريكان اتشيز ومشروم صوص",
+      "category": "بيف-برجر",
+      "price": 140,
+      "largePrice": 185,
+      "sizes": [
+        140,
+        185
+      ],
+      "badge": "BEST SELLER",
+      "image": "/uploads/1790350657388-mushroom-webp.webp",
+      "isAvailable": true,
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ]
+    },
+    {
+      "id": 1790351680125,
+      "name": "shams",
+      "nameAr": "شمس",
+      "description": "بيف برجر مع صوص اتشيز ومشروم وحلقات بصل مقرمشه",
+      "category": "بيف-برجر",
+      "price": 140,
+      "largePrice": 185,
+      "sizes": [
+        140,
+        185
+      ],
+      "badge": "",
+      "image": "/uploads/1790351680078-3cd5acc623e770c0388edf1d1c2c486b-png.png",
+      "isAvailable": true,
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ]
+    },
+    {
+      "id": 1790351879402,
+      "name": "Tommi",
+      "nameAr": "تومي",
+      "description": "بيف برجر مع امريكان اتشيز وصوص TEXAS وبصل مكرمل",
+      "category": "بيف-برجر",
+      "price": 140,
+      "largePrice": 185,
+      "sizes": [
+        140,
+        185
+      ],
+      "badge": "",
+      "image": "/uploads/1790351879384-129b22d7986886a6d24d539067861b0a--1--png.png",
+      "isAvailable": true,
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ]
+    },
+    {
+      "id": 1790410524957,
+      "name": "Sugarr",
+      "nameAr": "سيجار",
+      "description": "بيف برجر مع صوص اتشيز وبيف بيكون و 2 موزريلا استيكس و صوص HONEY MASTARD",
+      "category": "بيف-برجر",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "price": null,
+      "largePrice": 215,
+      "sizes": [
+        215
+      ],
+      "badge": "BEST SELLER",
+      "image": "/uploads/1790410524948-nest-burger-webp.webp",
+      "isAvailable": true
+    },
+    {
+      "id": 1790411232613,
+      "name": "Chicken Novaa",
+      "nameAr": "تشكن نوفا",
+      "description": "تشكن كريسبي مع صوص اتشيز",
+      "category": "تشيكن-برجر",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "price": 109,
+      "largePrice": 158.73,
+      "sizes": [
+        109,
+        158.73
+      ],
+      "badge": "",
+      "image": "/uploads/1790411232589-royal-crispy-webp.webp",
+      "isAvailable": true
+    },
+    {
+      "id": 1790411348233,
+      "name": "Chicken Soper Novaa",
+      "nameAr": "تشكن سوبر نوفا",
+      "description": "تشكن كريسبي مع صوص اتشيز وتركي مدخن",
+      "category": "تشيكن-برجر",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "price": 120,
+      "largePrice": 170,
+      "sizes": [
+        120,
+        170
+      ],
+      "badge": "BEST SELLER",
+      "image": "/uploads/1790411348217-smoked-crispy--1--webp.webp",
+      "isAvailable": true
+    },
+    {
+      "id": 1790411488721,
+      "name": "Chicken French",
+      "nameAr": "تشكن فرينش",
+      "description": "تشكن كريسبي مع صوص اتشيز وتركي مدخن وصوص RANCH",
+      "category": "تشيكن-برجر",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "price": 125,
+      "largePrice": 175,
+      "sizes": [
+        125,
+        175
+      ],
+      "badge": "BEST SELLER",
+      "image": "/uploads/1790411488700-crispy-ranch--1--webp.webp",
+      "isAvailable": true
+    },
+    {
+      "id": 1790411704417,
+      "name": "Chicken Nizy",
+      "nameAr": "تشكن نيزي",
+      "description": "تشكن كرسبي مع صوص اتشيز وسلامي مدخن وصوص BBQ",
+      "category": "تشيكن-برجر",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "price": 125,
+      "largePrice": 175,
+      "sizes": [
+        125,
+        175
+      ],
+      "badge": "",
+      "image": "/uploads/1790411704398-5f9673352a1f5fafd00e3e2ae90af631-webp.webp",
+      "isAvailable": true
+    },
+    {
+      "id": 1790412106593,
+      "name": "Chicken Carlly",
+      "nameAr": "تشكن كيرلي",
+      "description": "الدجاج الاستريبس المقرمشة مع شرائح الهالپينيو وصوص البافالو الكريمي والجبنة الشيدر",
+      "category": "تشيكن-برجر",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "price": 123,
+      "largePrice": 173,
+      "sizes": [
+        123,
+        173
+      ],
+      "badge": "",
+      "image": "/uploads/1790412106561-730e9ce3b48956379c62c9ca72ac2b42-webp.webp",
+      "isAvailable": true
+    },
+    {
+      "id": 1790412243890,
+      "name": "Chicken Tuobs",
+      "nameAr": "تشكن تيوبس",
+      "description": "تشكن كرسبي وصوص اتشيز و 2 موزريلا استيكس وصوص HONEY MASTARD",
+      "category": "تشيكن-برجر",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "price": 140,
+      "largePrice": 190,
+      "sizes": [
+        140,
+        190
+      ],
+      "badge": "BEST SELLER",
+      "image": "/uploads/1790412243864-golden-crispy-webp.webp",
+      "isAvailable": true
+    },
+    {
+      "id": 1790412513390,
+      "name": "Kids Beef",
+      "nameAr": "وجبة أطفال بيف",
+      "description": "برجر بيف صغير + عصير+ لعبه",
+      "category": "وجبه-اطفال",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "price": 100,
+      "largePrice": null,
+      "sizes": [
+        100
+      ],
+      "badge": "",
+      "image": "/uploads/1790412513375-kids-beef--1--webp.webp",
+      "isAvailable": true
+    },
+    {
+      "id": 1790412601308,
+      "name": "kids chicken",
+      "nameAr": "وجبة أطفال تشيكن",
+      "description": "تشيكن صغير + عصير + لعبه",
+      "category": "وجبه-اطفال",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "price": 100,
+      "largePrice": null,
+      "sizes": [
+        100
+      ],
+      "badge": "",
+      "image": "/uploads/1790412601254-kids-chicken--1--webp.webp",
+      "isAvailable": true
+    },
+    {
+      "id": 1790432549997,
+      "name": "cheese fries",
+      "nameAr": "تشيز فرايز",
+      "description": "بطاطس بالتشيز",
+      "category": "صوصات",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "price": 50,
+      "largePrice": 70,
+      "sizes": [
+        50,
+        70
+      ],
+      "badge": "BEST SELLER",
+      "image": "/uploads/1790432549978-cheese-fries-webp.webp",
+      "isAvailable": true
+    },
+    {
+      "id": 1790432633713,
+      "name": "onion rings",
+      "nameAr": "حلقات بصل",
+      "description": "٥ قطع حلقات بصل مقرمشة",
+      "category": "صوصات",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "price": 40,
+      "largePrice": null,
+      "sizes": [
+        40
+      ],
+      "badge": "",
+      "image": "/uploads/1790432633701-6e98465e852f3ec7285c670f94caf2ec-webp.webp",
+      "isAvailable": true
+    },
+    {
+      "id": 1790432734957,
+      "name": "Mozzarella sticks",
+      "nameAr": "أصابع موتزاريلا",
+      "description": "3 أصابع موتزاريلا مقلية",
+      "category": "صوصات",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "price": 40,
+      "largePrice": null,
+      "sizes": [
+        40
+      ],
+      "badge": "",
+      "image": "/uploads/1790432734944-0e400b5cb4ed8681ececd7a75e2e9c9f-webp.webp",
+      "isAvailable": true
+    },
+    {
+      "id": 1790432855136,
+      "name": "Bufflo wings",
+      "nameAr": "بافالو وينجز مقلية",
+      "description": "بافالو وينجز مقلية",
+      "category": "صوصات",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "price": 115,
+      "largePrice": null,
+      "sizes": [
+        115
+      ],
+      "badge": "",
+      "image": "/uploads/1790432855123-00e14cb2b9b112c1ec40d7697e4ce5a3-webp.webp",
+      "isAvailable": true
+    },
+    {
+      "id": 1790433035774,
+      "name": "Chicken Tinder",
+      "nameAr": "تشيكن تندرز",
+      "description": "قطع من تشيكن تندرز يقدم مع صوص الرانش",
+      "category": "صوصات",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "price": 140,
+      "largePrice": null,
+      "sizes": [
+        140
+      ],
+      "badge": "",
+      "image": "/uploads/1790433035753-2e08dbc9ce048332a0b11bc8b165e009-webp.webp",
+      "isAvailable": true
+    },
+    {
+      "id": 1790433263251,
+      "name": "BBQ sauce",
+      "nameAr": "صوص باربيكيو",
+      "description": "صوص باربكيو مدخن",
+      "category": "صوصات-2",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "price": 20,
+      "largePrice": 30,
+      "sizes": [
+        20,
+        30
+      ],
+      "badge": "",
+      "image": "/uploads/1790433263227-bbq-webp.webp",
+      "isAvailable": true
+    },
+    {
+      "id": 1790433402243,
+      "name": "Cheese sauce",
+      "nameAr": "صوص جبنة",
+      "description": "صوص جبنة كريمي",
+      "category": "صوصات-2",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "price": 20,
+      "largePrice": 30,
+      "sizes": [
+        20,
+        30
+      ],
+      "badge": "BEST SELLER",
+      "image": "/uploads/1790433402218-cheese-webp.webp",
+      "isAvailable": true
+    },
+    {
+      "id": 1790433503648,
+      "name": "Mostrda",
+      "nameAr": "مستردة",
+      "description": "صوص مسترده كريمي",
+      "category": "صوصات-2",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "price": 20,
+      "largePrice": 30,
+      "sizes": [
+        20,
+        30
+      ],
+      "badge": "",
+      "image": "/uploads/1790433503621-nest-webp.webp",
+      "isAvailable": true
+    },
+    {
+      "id": 1790433625488,
+      "name": "Ranch sauce",
+      "nameAr": "صوص رانش",
+      "description": "صوص رانش كريمي",
+      "category": "صوصات-2",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "price": 20,
+      "largePrice": 30,
+      "sizes": [
+        20,
+        30
+      ],
+      "badge": "",
+      "image": "/uploads/1790433625474-ranch-webp.webp",
+      "isAvailable": true
+    },
+    {
+      "id": 1790433798294,
+      "name": "Hallopino",
+      "nameAr": "هالوبينو",
+      "description": "فلفل هالوبينو",
+      "category": "صوصات",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "price": 20,
+      "largePrice": 30,
+      "sizes": [
+        20,
+        30
+      ],
+      "badge": "",
+      "image": "/uploads/1790433798283-hallopino-webp.webp",
+      "isAvailable": true
+    },
+    {
+      "id": 1790433873479,
+      "name": "v7 cola",
+      "nameAr": "ڤي 7 كولا",
+      "description": "مشروب غازي",
+      "category": "مشروبات",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "price": 25,
+      "largePrice": null,
+      "sizes": [
+        25
+      ],
+      "badge": "",
+      "image": "/uploads/1790433873465-v-cola-webp.webp",
+      "isAvailable": true
+    },
+    {
+      "id": 1790433982153,
+      "name": "Apple juice",
+      "nameAr": "عصير تفاح",
+      "description": "عصير تفاح بيور",
+      "category": "مشروبات",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "price": 20,
+      "largePrice": null,
+      "sizes": [
+        20
+      ],
+      "badge": "",
+      "image": "/uploads/1790433982138-e63ba032b6116b92014661fcb9fc66ca-webp.webp",
+      "isAvailable": true
+    },
+    {
+      "id": 1790434069148,
+      "name": "Water",
+      "nameAr": "مياه",
+      "description": "زجاجة مياه",
+      "category": "مشروبات",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "price": 10,
+      "largePrice": 20,
+      "sizes": [
+        10,
+        20
+      ],
+      "badge": "",
+      "image": "/uploads/1790434069137-feb647a76fe557005745edb376afe9dc-webp.webp",
+      "isAvailable": true
+    },
+    {
+      "id": 1790434286730,
+      "name": "v7 cola diat",
+      "nameAr": "ڤي 7 كولا دايت",
+      "description": "ڤي كولا دايت",
+      "category": "مشروبات",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "price": 25,
+      "largePrice": null,
+      "sizes": [
+        25
+      ],
+      "badge": "",
+      "image": "/uploads/1790434286716-30d543414097a09d4d29ec7a337128e9-webp.webp",
+      "isAvailable": true
+    }
+  ],
+  "offers": [
+    {
+      "id": 1790439526118,
+      "title": "عرض الصحاب",
+      "description": "3 × امريكان اتشيز برجر (M)",
+      "image": "/uploads/1790439754828-----------------------webp.webp",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "productIds": [
+        1790340057101
+      ],
+      "items": [
+        {
+          "productId": 1790340057101,
+          "size": "M",
+          "quantity": 3
+        }
+      ],
+      "discountType": "percentage",
+      "discountValue": 20,
+      "isActive": true,
+      "createdAt": "2026-09-26T16:18:46.118Z",
+      "updatedAt": "2026-09-26T16:22:34.838Z"
+    },
+    {
+      "id": 1790443793717,
+      "title": "عرض الأكيلة",
+      "description": "3 × تشكن فرينش (M) + 1 × ڤي 7 كولا (M)",
+      "image": "/uploads/1790443793692-----------------------webp.webp",
+      "branchIds": [
+        "downtown",
+        "new-city"
+      ],
+      "productIds": [
+        1790411488721,
+        1790433873479
+      ],
+      "items": [
+        {
+          "productId": 1790411488721,
+          "size": "M",
+          "quantity": 3
+        },
+        {
+          "productId": 1790433873479,
+          "size": "M",
+          "quantity": 1
+        }
+      ],
+      "discountType": "percentage",
+      "discountValue": 25,
+      "isActive": true,
+      "createdAt": "2026-09-26T17:29:53.717Z",
+      "updatedAt": "2026-09-26T17:29:53.717Z"
+    }
+  ]
+}
