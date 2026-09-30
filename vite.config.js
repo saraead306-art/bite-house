@@ -3,7 +3,6 @@ import react from '@vitejs/plugin-react';
 
 import {
   handleApi,
-  getAdminEnv,
 } from './server/api.js';
 
 export default defineConfig({
@@ -61,23 +60,16 @@ export default defineConfig({
     },
   ],
 
-  server: {
-    host: '0.0.0.0',
+server: {
+  host: '0.0.0.0',
+  port: Number(process.env.PORT || 5173),
+  strictPort: false,
+},
 
-    port: Number(
-      getAdminEnv().PORT
-    ),
-
-    strictPort: false,
-  },
-
-  preview: {
-    host: '0.0.0.0',
-
-    port: Number(
-      getAdminEnv().PORT
-    ),
-  },
+preview: {
+  host: '0.0.0.0',
+  port: Number(process.env.PORT || 5173),
+},
 
   build: {
     sourcemap: false,
