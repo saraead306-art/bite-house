@@ -11,7 +11,7 @@ const defaultProducts = [
     sizes: [135, 170],
     badge: 'الأكثر طلبًا',
     emoji: '🍔',
-    image: '/media/products/golden.png',
+    image: 'https://mozyvxusbhgygnivkjly.supabase.co/storage/v1/object/public/bite-house-images/media/products/optimized/golden.webp',
     isAvailable: true,
   },
   {
@@ -24,7 +24,7 @@ const defaultProducts = [
     sizes: [175, 205],
     badge: 'جديد',
     emoji: '🍔',
-    image: '/media/products/nest.png',
+    image: 'https://mozyvxusbhgygnivkjly.supabase.co/storage/v1/object/public/bite-house-images/media/products/optimized/nest.webp',
     isAvailable: true,
   },
   {
@@ -37,7 +37,7 @@ const defaultProducts = [
     sizes: [125, 135],
     badge: 'قيمة حلوة',
     emoji: '🍔',
-    image: '/media/products/old.png',
+    image: 'https://mozyvxusbhgygnivkjly.supabase.co/storage/v1/object/public/bite-house-images/media/products/optimized/old.webp',
     isAvailable: true,
   },
   {
@@ -50,7 +50,7 @@ const defaultProducts = [
     sizes: [185, 215],
     badge: '',
     emoji: '🍔',
-    image: '/media/products/mushroom-bacon.png',
+    image: 'https://mozyvxusbhgygnivkjly.supabase.co/storage/v1/object/public/bite-house-images/media/products/optimized/mushroom-bacon.webp',
     isAvailable: true,
   },
   {
@@ -63,7 +63,7 @@ const defaultProducts = [
     sizes: [135, 175],
     badge: '',
     emoji: '🍔',
-    image: '/media/products/bacon.png',
+    image: 'https://mozyvxusbhgygnivkjly.supabase.co/storage/v1/object/public/bite-house-images/media/products/optimized/bacon.webp',
     isAvailable: true,
   },
   {
@@ -76,7 +76,7 @@ const defaultProducts = [
     sizes: [195],
     badge: '',
     emoji: '🍔',
-    image: '/media/products/gladiator.png',
+    image: 'https://mozyvxusbhgygnivkjly.supabase.co/storage/v1/object/public/bite-house-images/media/products/optimized/gladiator.webp',
     isAvailable: true,
   },
   {
@@ -89,7 +89,7 @@ const defaultProducts = [
     sizes: [145, 175],
     badge: '',
     emoji: '🍔',
-    image: '/media/products/mushroom.png',
+    image: 'https://mozyvxusbhgygnivkjly.supabase.co/storage/v1/object/public/bite-house-images/media/products/optimized/mushroom.webp',
     isAvailable: true,
   },
   {
@@ -102,7 +102,7 @@ const defaultProducts = [
     sizes: [160],
     badge: '',
     emoji: '🍔',
-    image: '/media/products/volcano.png',
+    image: 'https://mozyvxusbhgygnivkjly.supabase.co/storage/v1/object/public/bite-house-images/media/products/optimized/volcano.webp',
     isAvailable: true,
   },
   {
@@ -115,7 +115,7 @@ const defaultProducts = [
     sizes: [110, 135],
     badge: 'اقتصادي',
     emoji: '🍔',
-    image: '/media/products/nest-royal.png',
+    image: 'https://mozyvxusbhgygnivkjly.supabase.co/storage/v1/object/public/bite-house-images/media/products/optimized/nest-royal.webp',
     isAvailable: true,
   },
   {
@@ -128,7 +128,7 @@ const defaultProducts = [
     sizes: [175, 210],
     badge: '',
     emoji: '🍔',
-    image: '/media/products/double.png',
+    image: 'https://mozyvxusbhgygnivkjly.supabase.co/storage/v1/object/public/bite-house-images/media/products/optimized/double.webp',
     isAvailable: true,
   },
 ];

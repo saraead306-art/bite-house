@@ -362,7 +362,7 @@ export default function MenuPage({
             />
 
             <img
-              src="/media/products/5.png"
+              src="https://mozyvxusbhgygnivkjly.supabase.co/storage/v1/object/public/bite-house-images/media/products/optimized/5.webp"
               alt="Bite House"
             />
           </div>
