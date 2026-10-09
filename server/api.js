@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { createClient } from '@supabase/supabase-js';
+import bcrypt from 'bcryptjs';
 
 import {
   defaultData,
@@ -35,20 +37,6 @@ const UPLOAD_DIR =
     'uploads'
   );
 
-
-fs.mkdirSync(
-  DATA_DIR,
-  {
-    recursive: true,
-  }
-);
-
-fs.mkdirSync(
-  UPLOAD_DIR,
-  {
-    recursive: true,
-  }
-);
 
 
 /* =========================================================
@@ -190,6 +178,7 @@ function normalizeStoredData(data) {
 }
 
 function ensureDatabase() {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
   if (
     !fs.existsSync(
       DB_FILE
@@ -227,10 +216,80 @@ function loadDatabase() {
   }
 }
 
-let database =
-  loadDatabase();
+let database = clone(defaultData);
+let supabaseMode = false;
+let supabaseAdminAccounts = [];
+let supabaseClient = null;
+let apiQueue = Promise.resolve();
 
-function saveDatabase() {
+function runtimeEnv(name) {
+  return String(process.env[name] || getEnvValue(name) || '').trim();
+}
+
+function getSupabaseCredentials() {
+  return {
+    url: runtimeEnv('SUPABASE_URL'),
+    key: runtimeEnv('SUPABASE_SECRET_KEY') || runtimeEnv('SUPABASE_SERVICE_ROLE_KEY'),
+  };
+}
+
+function getSupabaseClient() {
+  const { url, key } = getSupabaseCredentials();
+  if (!url || !key) {
+    const error = new Error('Supabase credentials are required in this deployment. Set SUPABASE_URL and SUPABASE_SECRET_KEY in Vercel Environment Variables.');
+    error.code = 'SUPABASE_CONFIG';
+    throw error;
+  }
+  if (!supabaseClient) {
+    supabaseClient = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+  }
+  return supabaseClient;
+}
+
+function isVercelRuntime() {
+  return Boolean(process.env.VERCEL);
+}
+
+async function loadSupabaseState() {
+  const client = getSupabaseClient();
+  const { data, error } = await client.from('bite_house_data').select('data').eq('id', 1).maybeSingle();
+  if (error) {
+    const failure = new Error(`Could not load bite_house_data row id=1: ${error.message}`);
+    failure.statusCode = 503;
+    throw failure;
+  }
+  if (!data || !data.data) {
+    const failure = new Error('Supabase data row id=1 is missing. Run the migration script or add the initial row first.');
+    failure.code = 'SUPABASE_CONFIG';
+    throw failure;
+  }
+  database = normalizeStoredData(data.data);
+  const admins = await client.from('admin_accounts').select('email,password_hash').order('email');
+  if (admins.error) {
+    const failure = new Error(`Could not load admin_accounts: ${admins.error.message}`);
+    failure.statusCode = 503;
+    throw failure;
+  }
+  supabaseAdminAccounts = (admins.data || []).map((row) => ({
+    key: `supabase:${String(row.email).trim().toLowerCase()}`,
+    email: String(row.email).trim().toLowerCase(),
+    passwordHash: String(row.password_hash || ''),
+  })).filter((account) => account.email && account.passwordHash);
+}
+
+async function saveDatabase() {
+  if (supabaseMode) {
+    const { error } = await getSupabaseClient().from('bite_house_data').upsert({
+      id: 1, data: database, updated_at: new Date().toISOString(),
+    }, { onConflict: 'id' });
+    if (error) {
+      const failure = new Error(`Could not save bite_house_data: ${error.message}`);
+      failure.statusCode = 500;
+      throw failure;
+    }
+    return;
+  }
+  fs.mkdirSync(DATA_DIR, { recursive: true });
   const tempFile =
     `${DB_FILE}.tmp`;
 
@@ -371,6 +430,7 @@ function getEnvValue(
    ========================================================= */
 
 function getAdminAccounts() {
+  if (supabaseMode) return supabaseAdminAccounts;
   const env =
     readEnvFile();
 
@@ -661,177 +721,80 @@ async function readBody(
 /* =========================================================
    SESSION
    ========================================================= */
-
-const sessions =
-  new Map();
-
-function parseCookies(
-  req
-) {
-  const header =
-    req.headers.cookie ||
-    '';
-
-  const cookies =
-    {};
-
-  for (
-    const part of
-      header.split(';')
-  ) {
-    const [
-      key,
-      ...rest
-    ] =
-      part
-        .trim()
-        .split('=');
-
-    if (!key) {
-      continue;
-    }
-
-    cookies[key] =
-      decodeURIComponent(
-        rest.join('=')
-      );
+const sessions = new Map();
+function parseCookies(req) {
+  const header = req.headers.cookie || '';
+  const cookies = {};
+  for (const part of header.split(';')) {
+    const [key, ...rest] = part.trim().split('=');
+    if (!key) continue;
+    try { cookies[key] = decodeURIComponent(rest.join('=')); } catch { cookies[key] = ''; }
   }
-
   return cookies;
 }
-
-function getSessionToken(
-  req
-) {
-  return parseCookies(
-    req
-  ).bitehouse_session;
+function getSessionToken(req) { return parseCookies(req).bitehouse_session; }
+function sessionSecret() { return runtimeEnv('ADMIN_SESSION_SECRET'); }
+function signSession(payload) {
+  const secret = sessionSecret();
+  if (!secret) {
+    const error = new Error('ADMIN_SESSION_SECRET is required for secure Supabase/Vercel admin sessions.');
+    error.code = 'SUPABASE_CONFIG';
+    throw error;
+  }
+  const encoded = Buffer.from(JSON.stringify(payload)).toString('base64url');
+  const signature = crypto.createHmac('sha256', secret).update(encoded).digest('base64url');
+  return `${encoded}.${signature}`;
 }
-
-function getSession(
-  req
-) {
-  const token =
-    getSessionToken(
-      req
-    );
-
-  return token
-    ? sessions.get(
-        token
-      )
-    : null;
+function getSession(req) {
+  const token = getSessionToken(req);
+  if (!token) return null;
+  if (!supabaseMode) return sessions.get(token) || null;
+  const [encoded, signature, extra] = token.split('.');
+  if (!encoded || !signature || extra) return null;
+  const secret = sessionSecret();
+  if (!secret) return null;
+  const expected = crypto.createHmac('sha256', secret).update(encoded).digest();
+  let actual;
+  try { actual = Buffer.from(signature, 'base64url'); } catch { return null; }
+  if (actual.length !== expected.length || !crypto.timingSafeEqual(actual, expected)) return null;
+  try {
+    const payload = JSON.parse(Buffer.from(encoded, 'base64url').toString('utf8'));
+    if (!payload.email || !Number.isFinite(payload.exp) || payload.exp <= Date.now()) return null;
+    return { email: String(payload.email).toLowerCase(), exp: payload.exp };
+  } catch { return null; }
 }
-
-function isAuthenticated(
-  req
-) {
-  return Boolean(
-    getSession(
-      req
-    )
-  );
-}
-
-function requireAuth(
-  req,
-  res
-) {
-  if (
-    !isAuthenticated(
-      req
-    )
-  ) {
-    sendJson(
-      res,
-      401,
-      {
-        message:
-          'غير مصرح بالدخول.',
-      }
-    );
-
+function isAuthenticated(req) { return Boolean(getSession(req)); }
+function requireAuth(req, res) {
+  if (!isAuthenticated(req)) {
+    sendJson(res, 401, { message: 'غير مصرح بالدخول.' });
     return false;
   }
-
   return true;
 }
-
-function createSession(
-  res,
-  account
-) {
-  const token =
-    crypto.randomUUID();
-
-  sessions.set(
-    token,
-    {
-      accountKey:
-        account.key,
-
-      email:
-        account.email,
-
-      createdAt:
-        Date.now(),
-    }
-  );
-
-  res.setHeader(
-    'Set-Cookie',
-    `bitehouse_session=${encodeURIComponent(
-      token
-    )}; HttpOnly; SameSite=Lax; Path=/; Max-Age=28800`
-  );
-}
-
-function destroySession(
-  req,
-  res
-) {
-  const token =
-    getSessionToken(
-      req
-    );
-
-  if (token) {
-    sessions.delete(
-      token
-    );
+function createSession(res, account) {
+  const maxAge = 8 * 60 * 60;
+  if (supabaseMode) {
+    const token = signSession({ email: account.email, exp: Date.now() + maxAge * 1000 });
+    const secure = process.env.NODE_ENV === 'production' || isVercelRuntime() ? '; Secure' : '';
+    res.setHeader('Set-Cookie', `bitehouse_session=${encodeURIComponent(token)}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${maxAge}${secure}`);
+    return;
   }
-
-  res.setHeader(
-    'Set-Cookie',
-    'bitehouse_session=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0'
-  );
+  const token = crypto.randomUUID();
+  sessions.set(token, { accountKey: account.key, email: account.email, createdAt: Date.now() });
+  const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+  res.setHeader('Set-Cookie', `bitehouse_session=${encodeURIComponent(token)}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${maxAge}${secure}`);
 }
-
-function getCurrentAccount(
-  req
-) {
-  const session =
-    getSession(
-      req
-    );
-
-  if (!session) {
-    return null;
-  }
-
-  return (
-    getAdminAccounts().find(
-      (account) =>
-        account.key ===
-          session.accountKey &&
-        account.email ===
-          session.email
-    ) ||
-    null
-  );
+function destroySession(req, res) {
+  const token = getSessionToken(req);
+  if (token) sessions.delete(token);
+  const secure = process.env.NODE_ENV === 'production' || (supabaseMode && isVercelRuntime()) ? '; Secure' : '';
+  res.setHeader('Set-Cookie', `bitehouse_session=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0${secure}`);
 }
-
-
+function getCurrentAccount(req) {
+  const session = getSession(req);
+  if (!session) return null;
+  return getAdminAccounts().find((account) => account.email === session.email && (supabaseMode || account.key === session.accountKey)) || null;
+}
 /* =========================================================
    OFFERS CALCULATION
    ========================================================= */
@@ -1080,7 +1043,7 @@ function getAdminData(
    IMAGE
    ========================================================= */
 
-function saveImage(
+async function saveImage(
   dataUrl,
   originalName = 'image'
 ) {
@@ -1144,6 +1107,23 @@ function saveImage(
   const fileName =
     `${Date.now()}-${safeName}.${extension}`;
 
+  if (supabaseMode) {
+    const contentType = extension === 'png' ? 'image/png' : extension === 'webp' ? 'image/webp' : 'image/jpeg';
+    const storagePath = `uploads/${fileName}`;
+    const { error } = await getSupabaseClient().storage.from('bite-house-images').upload(storagePath, buffer, {
+      contentType,
+      upsert: true,
+      cacheControl: '31536000',
+    });
+    if (error) {
+      const failure = new Error(`Supabase image upload failed: ${error.message}`);
+      failure.statusCode = 500;
+      throw failure;
+    }
+    return getSupabaseClient().storage.from('bite-house-images').getPublicUrl(storagePath).data.publicUrl;
+  }
+
+  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
   fs.writeFileSync(
     path.join(
       UPLOAD_DIR,
@@ -1240,7 +1220,14 @@ function nextAccountIndex(
    API
    ========================================================= */
 
-export async function handleApi(
+
+export function handleApi(req, res) {
+  const current = apiQueue.then(() => handleApiSerial(req, res));
+  apiQueue = current.catch(() => {});
+  return current;
+}
+
+async function handleApiSerial(
   req,
   res
 ) {
@@ -1266,6 +1253,29 @@ export async function handleApi(
   }
 
   try {
+    const { url: supabaseUrl, key: supabaseKey } = getSupabaseCredentials();
+    if (isVercelRuntime() && (!supabaseUrl || !supabaseKey)) {
+      const error = new Error('إعداد Supabase ناقص: أضف SUPABASE_URL وSUPABASE_SECRET_KEY في Vercel Environment Variables.');
+      error.code = 'SUPABASE_CONFIG';
+      throw error;
+    }
+    if ((supabaseUrl && !supabaseKey) || (!supabaseUrl && supabaseKey)) {
+      const error = new Error('أضف SUPABASE_URL مع SUPABASE_SECRET_KEY معًا، أو احذفهما لاستخدام التخزين المحلي.');
+      error.code = 'SUPABASE_CONFIG';
+      throw error;
+    }
+    supabaseMode = Boolean(supabaseUrl && supabaseKey);
+    if (supabaseMode) {
+      if (!sessionSecret()) {
+        const error = new Error('ADMIN_SESSION_SECRET غير مضبوط. أضفه كسر في Vercel Environment Variables.');
+        error.code = 'SUPABASE_CONFIG';
+        throw error;
+      }
+      await loadSupabaseState();
+    } else {
+      database = loadDatabase();
+      supabaseAdminAccounts = [];
+    }
     /* =====================================================
        PUBLIC DATA
        ===================================================== */
@@ -1334,14 +1344,14 @@ export async function handleApi(
             ''
         );
 
-      const account =
-        getAdminAccounts().find(
-          (item) =>
-            item.email ===
-              email &&
-            item.password ===
-              password
-        );
+      let account = null;
+      for (const item of getAdminAccounts()) {
+        if (item.email !== email) continue;
+        const matches = supabaseMode
+          ? await bcrypt.compare(password, item.passwordHash)
+          : item.password === password;
+        if (matches) { account = item; break; }
+      }
 
       if (!account) {
         sendJson(
@@ -1514,7 +1524,7 @@ export async function handleApi(
         );
 
       const image =
-        saveImage(
+        await saveImage(
           body.dataUrl,
           body.fileName
         );
@@ -1566,7 +1576,7 @@ export async function handleApi(
       };
 
       database.branches.push(branch);
-      saveDatabase();
+      await saveDatabase();
       sendJson(res, 201, branch);
       return true;
     }
@@ -1644,7 +1654,7 @@ export async function handleApi(
         category
       );
 
-      saveDatabase();
+      await saveDatabase();
 
       sendJson(
         res,
@@ -1750,7 +1760,7 @@ export async function handleApi(
         category.branchIds =
           branchIds;
 
-        saveDatabase();
+        await saveDatabase();
 
         sendJson(
           res,
@@ -1838,7 +1848,7 @@ export async function handleApi(
           }
         );
 
-        saveDatabase();
+        await saveDatabase();
 
         sendJson(
           res,
@@ -2014,7 +2024,7 @@ export async function handleApi(
         product
       );
 
-      saveDatabase();
+      await saveDatabase();
 
       sendJson(
         res,
@@ -2215,7 +2225,7 @@ export async function handleApi(
           }
         );
 
-        saveDatabase();
+        await saveDatabase();
 
         sendJson(
           res,
@@ -2270,7 +2280,7 @@ export async function handleApi(
                 0
             );
 
-        saveDatabase();
+        await saveDatabase();
 
         sendJson(
           res,
@@ -2328,7 +2338,7 @@ export async function handleApi(
       product.isAvailable =
         !product.isAvailable;
 
-      saveDatabase();
+      await saveDatabase();
 
       sendJson(
         res,
@@ -2553,7 +2563,7 @@ export async function handleApi(
         offer
       );
 
-      saveDatabase();
+      await saveDatabase();
 
       sendJson(
         res,
@@ -2815,7 +2825,7 @@ export async function handleApi(
           }
         );
 
-        saveDatabase();
+        await saveDatabase();
 
         sendJson(
           res,
@@ -2847,7 +2857,7 @@ export async function handleApi(
               ) !== id
           );
 
-        saveDatabase();
+        await saveDatabase();
 
         sendJson(
           res,
@@ -2908,7 +2918,7 @@ export async function handleApi(
       offer.updatedAt =
         new Date().toISOString();
 
-      saveDatabase();
+      await saveDatabase();
 
       sendJson(
         res,
@@ -2995,10 +3005,10 @@ export async function handleApi(
         return true;
       }
 
-      if (
-        currentPassword !==
-        currentAccount.password
-      ) {
+      const currentPasswordMatches = supabaseMode
+        ? await bcrypt.compare(currentPassword, currentAccount.passwordHash)
+        : currentPassword === currentAccount.password;
+      if (!currentPasswordMatches) {
         sendJson(
           res,
           400,
@@ -3027,6 +3037,19 @@ export async function handleApi(
         return true;
       }
 
+      if (supabaseMode) {
+        const passwordHash = await bcrypt.hash(newPassword, 12);
+        const { error } = await getSupabaseClient().from('admin_accounts').upsert(
+          { email: currentAccount.email, password_hash: passwordHash },
+          { onConflict: 'email' }
+        );
+        if (error) {
+          const failure = new Error(`Could not update admin account: ${error.message}`);
+          failure.statusCode = 500;
+          throw failure;
+        }
+        await loadSupabaseState();
+      } else {
       const env =
         readEnvFile();
 
@@ -3052,6 +3075,8 @@ export async function handleApi(
       saveEnvFile(
         env
       );
+
+      }
 
       sendJson(
         res,
@@ -3148,21 +3173,20 @@ export async function handleApi(
         return true;
       }
 
-      const env =
-        readEnvFile();
-
-      const index =
-        nextAccountIndex(
-          env
-        );
-
-      saveEnvFile({
-        [`ADMIN_EMAIL_${index}`]:
-          email,
-
-        [`ADMIN_PASSWORD_${index}`]:
-          password,
-      });
+      if (supabaseMode) {
+        const passwordHash = await bcrypt.hash(password, 12);
+        const { error } = await getSupabaseClient().from('admin_accounts').insert({ email, password_hash: passwordHash });
+        if (error) {
+          const failure = new Error(`Could not add admin account: ${error.message}`);
+          failure.statusCode = error.code === '23505' ? 400 : 500;
+          throw failure;
+        }
+        await loadSupabaseState();
+      } else {
+        const env = readEnvFile();
+        const index = nextAccountIndex(env);
+        saveEnvFile({ [`ADMIN_EMAIL_${index}`]: email, [`ADMIN_PASSWORD_${index}`]: password });
+      }
 
       sendJson(
         res,
@@ -3217,13 +3241,9 @@ export async function handleApi(
 
     sendJson(
       res,
-      400,
+      error.code === 'SUPABASE_CONFIG' ? 503 : (error.statusCode || 400),
       {
-        message:
-          messages[
-            error.message
-          ] ||
-          'حدث خطأ في السيرفر.',
+        message: error.code === 'SUPABASE_CONFIG' ? error.message : (messages[error.message] || error.message || 'حدث خطأ في السيرفر.'),
       }
     );
 
